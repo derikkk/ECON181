@@ -89,17 +89,20 @@ d5
 
 ```{r}
 fiveBEclean <- fiveBE %>%
-  mutate("BE" = na.approx("5BE")) 
+  rename(inf = "5BE") %>%
+  mutate(inf = na.approx(inf)) 
 ```
 
 ```{r}
 fiveFLclean <- fiveFL %>%
-  mutate("FL" = na.approx("5FE")) 
+  rename(inf = "5FL") %>%
+  mutate(inf = na.approx(inf)) 
 ```
 
 ```{r}
 tenBEclean <- tenBE %>%
-  mutate("BE" = na.approx("10BE")) 
+  rename(inf = "10BE") %>%
+  mutate(inf = na.approx(inf)) 
 ```
 
 ```{r}
@@ -136,7 +139,7 @@ library (lmtest)
 ```
 
 ```{r}
-cause <- read_csv("causalitytest.csv")
+cause <- read_csv("clean_long.csv")
 ```
 
 ## BTC DR vs Explanatory Variables
@@ -290,9 +293,7 @@ cause_lagged <- cause %>%
   mutate(lagFBE = lag(FBE, n = 1, default = NA),
          lagFFL = lag(FFL, n = 1, default = NA),
          lagTBE = lag(TBE, n = 1, default = NA),
-         lagBTC = lag(BTCDR, n = 1, default = NA),
          lagETF = lag(ETFDR, n = 1, default = NA),
-         lagCRYPT = lag(CRYPTDR, n = 1, default = NA),
          lagGOLD = lag(GOLDDR, n = 1, default = NA))
 ```
 
