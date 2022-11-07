@@ -88,13 +88,18 @@ d5
 ```
 
 ```{r}
-d10clean <- d10 %>%
-  mutate(inf = na.approx(inf)) 
+fiveBEclean <- fiveBE %>%
+  mutate("BE" = na.approx("5BE")) 
 ```
 
 ```{r}
-d5clean <- d5f %>%
-  mutate(T5YIFR = na.approx(T5YIFR)) 
+fiveFLclean <- fiveFL %>%
+  mutate("FL" = na.approx("5FE")) 
+```
+
+```{r}
+tenBEclean <- tenBE %>%
+  mutate("BE" = na.approx("10BE")) 
 ```
 
 ```{r}
@@ -103,46 +108,24 @@ cryptclean <- cry %>%
 ```
 
 ```{r}
-goldclean <- gld %>%
-  mutate(Price = na.approx.default(Price, rule = 2)) #https://stackoverflow.com/questions/7317607/interpolate-na-values-in-a-data-frame-with-na-approx
+goldclean <- goldc %>%
+  mutate(GOLD = na.approx.default(GOLD, rule = 2)) #https://stackoverflow.com/questions/7317607/interpolate-na-values-in-a-data-frame-with-na-approx
 ```
 
 ```{r}
 etfclean <- etfc %>%
-  mutate(Close = na.approx(Close)) 
+  mutate(etf = na.approx(etf)) 
 ```
 
 ## Exporting Clean Data
 
 ```{r}
-write_csv(d5, "/Users/oneinchdong/Desktop/ECON182/5ybreakevenclean.csv")
-write_csv(d10clean, "/Users/oneinchdong/Desktop/ECON182/10ybreakevenclean.csv")
-write_csv(d5clean, "/Users/oneinchdong/Desktop/ECON182/5yforwardclean.csv")
-write_csv(cryptclean, "/Users/oneinchdong/Desktop/ECON182/cryptclean.csv")
-write_csv(goldclean, "/Users/oneinchdong/Desktop/ECON182/goldclean.csv")
-write_csv(etfclean, "/Users/oneinchdong/Desktop/ECON182/etfclean.csv")
-```
-
-## Calculate Rolling Correlation
-
-```{r bitcoin vs gold}
-cryptgold <- left_join(goldclean %>% subset(Date > "2017-02-28"), cryptclean %>% rename(Date = date), by = "Date") # https://stackoverflow.com/questions/22554166/select-data-after-specific-date
-```
-
-```{r}
-rollapply(cryptgold, width = 100, function(x) cor(cryptgold[2],cryptgold[3], use = "complete.obs"), by.column=FALSE)
-```
-
-```{r}
-rollapply(cryptgold, width = 3, function(x) cor(cryptgold[,2],cryptgold[,3], use = "complete.obs"), by.column=FALSE)
-```
-
-```{r}
-cor(cryptgold[2],cryptgold[3], use = "complete.obs")
-```
-
-```{r}
-write_csv(cryptgold, "/Users/oneinchdong/Desktop/ECON182/cryptgoldclean.csv")
+write_csv(fiveBEclean, "/Users/oneinchdong/Desktop/ECON181/5yrBEclean.csv")
+write_csv(tenBEclean, "/Users/oneinchdong/Desktop/ECON181/10yrBEclean.csv")
+write_csv(fiveFLclean, "/Users/oneinchdong/Desktop/ECON181/5yrFLclean.csv")
+write_csv(cryptclean, "/Users/oneinchdong/Desktop/ECON181/cryptclean.csv")
+write_csv(goldclean, "/Users/oneinchdong/Desktop/ECON181/goldclean.csv")
+write_csv(etfclean, "/Users/oneinchdong/Desktop/ECON181/etfclean.csv")
 ```
 
 # Granger Causality Test
