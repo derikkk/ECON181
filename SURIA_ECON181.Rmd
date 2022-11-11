@@ -294,7 +294,8 @@ cause_lagged <- cause %>%
          lagFFL = lag(FFL, n = 1, default = NA),
          lagTBE = lag(TBE, n = 1, default = NA),
          lagETF = lag(ETFDR, n = 1, default = NA),
-         lagGOLD = lag(GOLDDR, n = 1, default = NA))
+         lagGOLD = lag(GOLDDR, n = 1, default = NA),
+         lagCRYPT = lag(CRYPTDR, n = 1, default = NA))
 ```
 
 ```{r}
