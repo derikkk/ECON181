@@ -396,11 +396,11 @@ summary(btc3control)
 ```
 
 ```{r}
-crypt1control <- lm(CRYPT ~ lagCRYPT + FBE + controlFBE, data = cause_lagged)
+crypt1control <- lm(CRYPTDR ~ lagCRYPT + FBE + controlFBE, data = cause_lagged)
 summary(crypt1control)
-crypt2control <- lm(CRYPT ~ lagCRYPT + FFL + controlFBE, data = cause_lagged)
+crypt2control <- lm(CRYPTDR ~ lagCRYPT + FFL + controlFBE, data = cause_lagged)
 summary(crypt2control)
-crypt3control <- lm(CRYPT ~ lagCRYPT + TBE + controlFBE, data = cause_lagged)
+crypt3control <- lm(CRYPTDR ~ lagCRYPT + TBE + controlFBE, data = cause_lagged)
 summary(crypt3control)
 ```
 
@@ -443,7 +443,6 @@ summary(crypt2twit)
 crypt3twit <- lm(CRYPTDR ~ lagCRYPT + TBE + TWITDR, data = cause_lagged)
 summary(crypt3twit)
 ```
-
 
 # Monthly Inflation Swaps vs BTC Monthly Returns
 
