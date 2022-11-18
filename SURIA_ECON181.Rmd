@@ -65,6 +65,13 @@ etf <- read_csv("etf.csv") %>%
 etf
 ```
 
+```{r}
+vixtwit <- read_csv("VIX_TWIT.csv") %>%
+  mutate(DATE = parse_date(DATE, format = "%m/%d/%y"))
+twit <- read_csv("Twitter.csv") %>%
+  mutate(DATE = parse_date(DATE, format = "%m/%d/%y"))
+```
+
 ## Filling Missing Dates using pad()
 
 ```{r}
@@ -74,6 +81,8 @@ tenBE <- pad(fred10ybe)
 cry <- pad(crypt)
 goldc <- pad(gold)
 etfc <- pad(etf)
+vixtwitc <- pad(vixtwit)
+twitc <- pad(twit)
 ```
 
 ## Interpolating Missing Values using na.approx()
@@ -120,6 +129,18 @@ etfclean <- etfc %>%
   mutate(etf = na.approx(etf)) 
 ```
 
+```{r}
+vixclean <- vixtwitc %>%
+  select(-TWITTER) %>%
+  mutate(VIX = na.approx(VIX))
+```
+
+```{r}
+twitclean <- twitc %>%
+  mutate(TWITTER = na.approx(TWITTER))
+```
+
+
 ## Exporting Clean Data
 
 ```{r}
@@ -129,6 +150,8 @@ write_csv(fiveFLclean, "/Users/oneinchdong/Desktop/ECON181/5yrFLclean.csv")
 write_csv(cryptclean, "/Users/oneinchdong/Desktop/ECON181/cryptclean.csv")
 write_csv(goldclean, "/Users/oneinchdong/Desktop/ECON181/goldclean.csv")
 write_csv(etfclean, "/Users/oneinchdong/Desktop/ECON181/etfclean.csv")
+write_csv(vixclean, "/Users/oneinchdong/Desktop/ECON181/vixclean.csv")
+write_csv(twitclean, "/Users/oneinchdong/Desktop/ECON181/twitclean.csv")
 ```
 
 # Granger Causality Test
@@ -295,7 +318,9 @@ cause_lagged <- cause %>%
          lagTBE = lag(TBE, n = 1, default = NA),
          lagETF = lag(ETFDR, n = 1, default = NA),
          lagGOLD = lag(GOLDDR, n = 1, default = NA),
-         lagCRYPT = lag(CRYPTDR, n = 1, default = NA))
+         lagCRYPT = lag(CRYPTDR, n = 1, default = NA),
+         lagBTC = lag(BTCDR, n = 1, default = NA),
+         controlFBE = ifelse(FBElev > 2, 1, 0))
 ```
 
 ```{r}
@@ -338,9 +363,7 @@ summary(crypt3as)
 
 ```{r}
 cause_controlled <- cause %>%
-  mutate(controlFBE = ifelse(FBE > 0.02, 1, 0),
-         controlFFL = ifelse(FFL > 0.02, 1, 0),
-         controlTBE = ifelse(TBE > 0.02, 1, 0),
+  mutate(controlFBE = ifelse(FBElev > 0.02, 1, 0),
          lagcontrolFBE = lag(controlFBE, n = 1, default = NA),
          lagFBE = lag(FBE, n = 1, default = NA),
          lagFFL = lag(FFL, n = 1, default = NA),
@@ -364,22 +387,63 @@ control2 <- control %>%
 
 
 ```{r}
-btc1control <- lm(BTCDR ~ lagBTC + FBE + controlFBE, data = control2)
+btc1control <- lm(BTCDR ~ lagBTC + FBE + controlFBE, data = cause_lagged)
 summary(btc1control)
-btc2control <- lm(BTCDR ~ lagBTC + FFL + controlFBE, data = control2)
+btc2control <- lm(BTCDR ~ lagBTC + FFL + controlFBE, data = cause_lagged)
 summary(btc2control)
-btc3control <- lm(BTCDR ~ lagBTC + TBE + controlFBE, data = control2)
+btc3control <- lm(BTCDR ~ lagBTC + TBE + controlFBE, data = cause_lagged)
 summary(btc3control)
 ```
 
 ```{r}
-crypt1control <- lm(CRYPT ~ lagCRYPT + FBE + controlFBE, data = control2)
+crypt1control <- lm(CRYPT ~ lagCRYPT + FBE + controlFBE, data = cause_lagged)
 summary(crypt1control)
-crypt2control <- lm(CRYPT ~ lagCRYPT + FFL + controlFBE, data = control2)
+crypt2control <- lm(CRYPT ~ lagCRYPT + FFL + controlFBE, data = cause_lagged)
 summary(crypt2control)
-crypt3control <- lm(CRYPT ~ lagCRYPT + TBE + controlFBE, data = control2)
+crypt3control <- lm(CRYPT ~ lagCRYPT + TBE + controlFBE, data = cause_lagged)
 summary(crypt3control)
 ```
+
+# Univariate Regression Controlling for VIX Index
+
+```{r}
+btc1vix<- lm(BTCDR ~ lagBTC + FBE + VIXDR, data = cause_lagged)
+summary(btc1vix)
+btc2vix <- lm(BTCDR ~ lagBTC + FFL + VIXDR, data = cause_lagged)
+summary(btc2vix)
+btc3vix <- lm(BTCDR ~ lagBTC + TBE + VIXDR, data = cause_lagged)
+summary(btc3vix)
+```
+
+```{r}
+crypt1vix <- lm(CRYPTDR ~ lagCRYPT + FBE + VIXDR, data = cause_lagged)
+summary(crypt1vix)
+crypt2vix <- lm(CRYPTDR ~ lagCRYPT + FFL + VIXDR, data = cause_lagged)
+summary(crypt2vix)
+crypt3vix <- lm(CRYPTDR ~ lagCRYPT + TBE + VIXDR, data = cause_lagged)
+summary(crypt3vix)
+```
+
+# Univariate Regression Controlling for Twitter Sentiment Index
+
+```{r}
+btc1twit<- lm(BTCDR ~ lagBTC + FBE + TWITDR, data = cause_lagged)
+summary(btc1twit)
+btc2twit <- lm(BTCDR ~ lagBTC + FFL + TWITDR, data = cause_lagged)
+summary(btc2twit)
+btc3twit <- lm(BTCDR ~ lagBTC + TBE + TWITDR, data = cause_lagged)
+summary(btc3twit)
+```
+
+```{r}
+crypt1twit <- lm(CRYPTDR ~ lagCRYPT + FBE + TWITDR, data = cause_lagged)
+summary(crypt1twit)
+crypt2twit <- lm(CRYPTDR ~ lagCRYPT + FFL + TWITDR, data = cause_lagged)
+summary(crypt2twit)
+crypt3twit <- lm(CRYPTDR ~ lagCRYPT + TBE + TWITDR, data = cause_lagged)
+summary(crypt3twit)
+```
+
 
 # Monthly Inflation Swaps vs BTC Monthly Returns
 
@@ -398,9 +462,19 @@ btc_monthly <- btc_m %>%
 
 ```{r}
 write_csv(btc_monthly, "/Users/oneinchdong/Desktop/ECON181/btc_monthly_clean.csv")
+btcswaps <- read_csv("btc_monthly_clean.csv")
 ```
 
+```{r}
+btcswapsc <- btcswaps %>%
+  mutate(lagmean = lag(mean, n = 1, default = NA))
+```
 
+# Regressing Monthly Inflation Swaps vs BTC Monthly Returns
 
+```{r}
+swapmodel <- lm(mean ~ lagmean + swaps, data = btcswapsc)
+summary(swapmodel)
+```
 
 
